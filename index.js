@@ -32,7 +32,8 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const coficolection = client.db('coffedb').collection('coffee')
+        const coficolection = client.db('coffedb').collection('coffee');
+        const userColection = client.db('coffedb').collection('user')
 
         app.post('/coffee', async (req, res) => {
             const newcoffee = req.body;
@@ -81,6 +82,50 @@ async function run() {
                 }
             }
             const result = await coficolection.updateOne(filter, coffee, options);
+            res.send(result)
+
+        })
+
+
+
+        // user databas
+
+        app.post('/users', async(req, res)=>{
+            const user = req.body;
+            const result = await userColection.insertOne(user);
+            res.send(result)
+        })
+
+
+        // get data
+
+        app.get('/users', async(req, res)=>{
+            const finds = userColection.find();
+            const result = await finds.toArray();
+            res.send(result)
+        })
+
+        // delete data
+
+        app.delete('/users/:id', async(req , res)=>{
+            const id = req.params.id;
+            const obId = {_id : new ObjectId(id)};
+            const result = await userColection.deleteOne(obId);
+            res.send(result)
+        })
+
+        // get update user
+
+        app.patch('/users', async (req, res) => {
+            const user = req.body;
+            const filter = {email: user.email};
+            const updateUser = {
+                $set: {
+                    lastlogeat: user.lastlogeat,
+
+                }
+            }
+            const result = await userColection.updateOne(filter, updateUser);
             res.send(result)
 
         })
